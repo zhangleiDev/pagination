@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>电量查看</title>
+<meta charset="utf-8">
+<meta name="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="./static/jquery.sPage.green.css">
+
+<!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+<style type="text/css">
+	.num{
+        height: 50px;
+    		line-height: 50px;
+    		text-align: center;
+    	}
+    	.demo{
+            margin-bottom: 20px;
+            text-align: center;
+        }
+</style>
+</head>
+
+<body>
+    <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page">电量</li>
+            </ol>
+    </nav>
+
+    <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-11">
+
+                </div>
+                <div class="col-sm-1 text-center">
+                        <button type="button" class="btn btn-outline-primary">查询</button>
+                </div>
+                    
+            </div>
+            <div class="row">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">电量</th>
+                    <th scope="col">时间</th>
+                    <th scope="col">标识</th>
+                  </tr>
+                </thead>
+                <tbody id="rows">
+                  <!-- <tr>
+                    <td scope="row">1</td>
+                    <td>10</td>
+                    <td>2020*</td>
+                    <td>2020-05-28 16:57:24</td>
+                  </tr> -->
+                </tbody>
+              </table>
+            </div>
+            <div class="row">
+              <div id="myPage" class="demo"></div>
+            </div>
+    </div>
+     
+ <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+ <script src="./static/jquery.sPage.js"></script>
+ <script type="text/javascript">
+ function ajaxPage(page){
+            var p = page || 1;
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:8080/zle/power",
+                data: {
+                    page:p,
+                    size:10,
+                },
+                dataType: "json",  
+                success: function(data){
+                  $("#rows tr").remove();
+                    var trs=""
+                    if(data.rows){
+                      for(var i=0;i<data.rows.length;i++){
+                        trs+= ("<tr>"+
+                        "<td scope='row'>"+data.rows[i].id+"</td>"+
+                        "<td>"+data.rows[i].power+"%</td>"+
+                        "<td>"+data.rows[i].create_time+"</td>"+
+                        "<td>--</td>"+
+                        "</tr>");
+                      }
+                      $("#rows").append(trs);
+                      $("#myPage").sPage(pageInfo(p,data.total,function(){
+                          ajaxPage(p);
+                       })
+                      )
+                      
+                    }
+                    
+                    
+
+              
+                },
+                error:function(e){
+                    console.log(e);
+                }
+            });
+        }
+        ajaxPage();
+    function pageInfo(p,total,fun){
+     return {
+              page:p,//当前页码，必填
+              total:total,//数据总条数，必填
+	            pageSize:10,//每页显示多少条数据，默认10条
+	            showTotal:true,//是否显示总条数，默认关闭：false
+              totalTxt:"共{total}条",//数据总条数文字描述，{total}为占位符，默认"共{total}条"
+              noData: false,//没有数据时是否显示分页，默认false不显示，true显示第一页
+	            showSkip:true,//是否显示跳页，默认关闭：false
+	            showPN:true,//是否显示上下翻页，默认开启：true
+	            prevPage:"上一页",//上翻页文字描述，默认“上一页”
+	            nextPage:"下一页",//下翻页文字描述，默认“下一页”
+              backFun:fun
+            }
+    }
+   $(function(){
+            // 示例1
+            $("#myPage").sPage({
+              page:1,//当前页码，必填
+              total:150,//数据总条数，必填
+	            pageSize:10,//每页显示多少条数据，默认10条
+	            showTotal:true,//是否显示总条数，默认关闭：false
+              totalTxt:"共{total}条",//数据总条数文字描述，{total}为占位符，默认"共{total}条"
+              noData: false,//没有数据时是否显示分页，默认false不显示，true显示第一页
+	            showSkip:true,//是否显示跳页，默认关闭：false
+	            showPN:true,//是否显示上下翻页，默认开启：true
+	            prevPage:"上一页",//上翻页文字描述，默认“上一页”
+	            nextPage:"下一页",//下翻页文字描述，默认“下一页”
+              backFun:function(page){
+                //点击分页按钮回调函数，返回当前页码
+                $("#pNum").text(page);
+              }
+            });
+            
+        
+        });
+</script>
+</body>
+</html>
